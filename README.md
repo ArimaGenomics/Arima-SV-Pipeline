@@ -6,7 +6,7 @@ To order Arima kits, please visit our website:
 https://arimagenomics.com/
 
 ## Getting Started
-We provide both Docker and Singularity containers implementation of the pipeline to allow users run Arima SV pipeline out of the box. You can mount the necessary input and output locations and run Arima SV pipeline in two ways.
+We provide both Docker and Singularity container implementations of the pipeline to allow users run Arima SV pipeline out of the box. You can mount the necessary input and output locations and run Arima SV pipeline in two ways.
 
 ### Using Docker image
 Please refer to the manual on Arima's DockerHub: https://hub.docker.com/repository/docker/arimaxiang/arima_ffpe
