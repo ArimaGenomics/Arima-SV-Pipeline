@@ -13,7 +13,7 @@ Please refer to the manual on Arima's DockerHub: https://hub.docker.com/reposito
 
 ### Using Singularity image
 ```
-
+wget ftp://ftp-arimagenomics.sdsc.edu/pub/singularity/Arima-SV-Pipeline-singularity-v0.sif
 ```
 
 ```
