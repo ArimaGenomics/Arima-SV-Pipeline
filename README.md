@@ -17,7 +17,7 @@ wget ftp://ftp-arimagenomics.sdsc.edu/pub/singularity/Arima-SV-Pipeline-singular
 ```
 
 ```
-singularity shell -B YOUR_HOST_OUTPUT_DIR:/FFPE/test_data/test_output_docker/ Arima-SV-Pipeline-singularity-v0.sif
+singularity exec -B YOUR_HOST_OUTPUT_DIR:/FFPE/mydata/ Arima-SV-Pipeline-singularity-v0.sif bash /FFPE/Arima-FFPE-v0.1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/mydata/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> log.txt
 ```
 
 
