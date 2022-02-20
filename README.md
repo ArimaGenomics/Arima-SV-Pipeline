@@ -12,17 +12,89 @@ We provide both Docker and Singularity container implementations of the pipeline
 Please refer to the manual on Arima's DockerHub: https://hub.docker.com/repository/docker/arimaxiang/arima_ffpe
 
 ### Using Singularity image
+* How to run Singularity on HPC when it is pre-installed
 ```
-wget ftp://ftp-arimagenomics.sdsc.edu/pub/singularity/Arima-SV-Pipeline-singularity-v0.sif
+module load singularity
 ```
 
+* How to install on Ubuntu systems. Note: not needed for use on TSCC, see above.
+Source: https://apptainer.org/user-docs/master/quick_start.html
+```
+sudo apt-get update && sudo apt-get install -y build-essential libssl-dev uuid-dev libgpgme11-dev squashfs-tools libseccomp-dev wget pkg-config git cryptsetup
+```
+
+* Install Go
+Download Go installer for Linux
+```
+wget https://go.dev/dl/go1.17.6.linux-amd64.tar.gz
+```
+
+* Remove any previous installation of Go
+```
+sudo rm -rf /usr/local/go
+```
+
+* Extract Go and put it in the directory '/usr/local'
+```
+sudo tar -C /usr/local -xzf go1.17.6.linux-amd64.tar.gz
+```
+
+* Add Go to the $PATH variable
+```
+export PATH=$PATH:/usr/local/go/bin
+echo 'export PATH=/usr/local/go/bin:$PATH' >> ~/.bashrc && source ~/.bashrc
+```
+
+* Verify Go installation
+```
+go version  # Expected: 'go version go1.17.6 linux/amd64'
+```
+
+* Create a variable with the version of Singularity to be downloaded
+```
+export VERSION=3.8.5  # Adjust this as necessary
+```
+
+* Download the Singularity source code
+```
+wget https://github.com/hpcng/singularity/releases/download/v${VERSION}/singularity-${VERSION}.tar.gz
+```
+
+* Extract the Singularity code
+```
+tar -xzf singularity-${VERSION}.tar.gz
+```
+
+* Change directory into the Singularity directory
+```
+cd singularity-${VERSION}
+```
+
+* Compile the Singularity source code
+```
+./mconfig
+make -C builddir
+sudo make -C builddir install
+```
+
+* Verify Singularity Installation
+```
+singularity version  # '3.8.5'
+```
+
+* Download Arima's Singularity container for SV pipeline
+```
+wget ftp://ftp-arimagenomics.sdsc.edu/pub/singularity/Arima-SV-Pipeline-singularity-v1.sif
+```
+
+* Run the pipeline with Singularity (Adjust this as necessary)
 ```
 singularity exec -B YOUR_HOST_OUTPUT_DIR:/FFPE/mydata/ Arima-SV-Pipeline-singularity-v0.sif bash /FFPE/Arima-FFPE-v0.1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/mydata/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> log.txt
 ```
 
 
 ## Usage (Command line options)
-Arima-FFPE-v0.1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
+Arima-SV-Pipeline-v1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
               [-H run_hiccups] [-r reference_file] [-s chrom_sizes_file] [-c cut_site_file]
               [-a bowtie2] [-x bowtie2_index_basename] [-d digest] [-w hicup_dir]
               [-b hic_breakfinder_dir] [-j juicer_dir] [-I FASTQ_string] [-o out_dir]
@@ -32,7 +104,7 @@ Arima-FFPE-v0.1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
     HiCUP_summary_report_*.txt and *R1_2*.hicup.bam need to be in the HiCUP output folder.
 * [-B run_hic_breakfinder]: "1" (default) to run hic_breakfinder, "0" to skip
 * [-J run_juicer]: "1" (default) to run Juicer, "0" to skip
-* [-H run_hiccups]: "1" (default) to run HiCCUPS, "0" to skip
+* [-H run_hiccups]: "1" to run HiCCUPS, "0" (default) to skip
 * [-r reference_file]: reference FASTA file
 * [-s chrom_sizes_file]: chrom.sizes file generated from the reference file
 * [-c cut_site_file]: cut site file used by Juicer pipeline
@@ -54,22 +126,21 @@ Arima-FFPE-v0.1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
 ### Example
 
 ```
-bash /FFPE/Arima-FFPE-v0.1.sh -W 1 -B 1 -J 1 -H 1 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/test_data/test_output_docker/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> /FFPE/test_data/test_output_docker/log.txt
+bash /FFPE/Arima-SV-Pipeline-v1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/test_data/test_output_docker/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> /FFPE/test_data/test_output_docker/log.txt
 ```
-
 
 ## Pipeline Output
 
-FFPE pipeline generates multiple files. Main output files are:
+The Arima SV pipeline generates multiple files. Main output files are:
 * $OUTPUT_DIR/\*_Arima_QC_deep.txt and $OUTPUT_DIR/\*_Arima_QC_shallow.txt - QC table containing multiple key metrics
 * $OUTPUT_DIR/hic_breakfinder/\*.breaks.bedpe - SV file in .bedpe format from hic_breakfinder
 * $OUTPUT_DIR/juicer/aligned/inter_30.hic - heatmap from Juicer pipeline for visualization using Juicebox
-* $OUTPUT_DIR/juicer/aligned/hiccups/merged_loops.bedpe - list of significant 3D interactions in .bedpe format
+* [optional] $OUTPUT_DIR/juicer/aligned/hiccups/merged_loops.bedpe - list of significant 3D interactions in .bedpe format
 
-The Arima-FFPE Bioinformatics User Guide walks through an example of how to run the Arima-FFPE pipeline using the provided test data and provides additional information on the output files.
+The Arima SV pipeline Bioinformatics User Guide walks through an example of how to run the Arima SV pipeline using the provided test data and provides additional information on the output files.
 
 ## Arima Pipeline Version
-0.1
+1.0
 
 ## Support
 For Arima customer support, please contact techsupport@arimagenomics.com
