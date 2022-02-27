@@ -9,7 +9,7 @@ https://arimagenomics.com/
 We provide both Docker and Singularity container implementations of the pipeline for users to run Arima SV pipeline out of the box. You can mount the necessary input and output locations and run Arima SV pipeline in two ways.
 
 ### Using Docker image
-Please refer to the manual on Arima's DockerHub: https://hub.docker.com/repository/docker/arimaxiang/arima_ffpe
+Please refer to the manual on Arima's DockerHub: https://hub.docker.com/repository/docker/arimaxiang/arima_sv
 
 ### Using Singularity image
 * How to run Singularity on HPC when it is pre-installed
