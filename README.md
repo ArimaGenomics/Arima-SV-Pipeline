@@ -8,7 +8,7 @@ https://arimagenomics.com/
 ## Getting Started
 We provide both Docker and Singularity container implementations of the pipeline for users to run Arima SV pipeline out of the box. You can mount the necessary input and output locations and run Arima SV pipeline in two ways.
 
-For advanced user, we also provide a non-containerized version of the pipeline in this repository. You will need to install all the tools and dependencies yourself.
+For advanced users, we also provide a non-containerized version of the pipeline in this repository. You will need to install all the tools and dependencies yourself.
 
 ### Using Docker image
 Please refer to the manual on Arima's DockerHub: https://hub.docker.com/repository/docker/arimaxiang/arima_sv
