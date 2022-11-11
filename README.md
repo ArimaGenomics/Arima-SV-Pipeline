@@ -8,6 +8,8 @@ https://arimagenomics.com/
 ## Getting Started
 We provide both Docker and Singularity container implementations of the pipeline for users to run Arima SV pipeline out of the box. You can mount the necessary input and output locations and run Arima SV pipeline in two ways.
 
+For advanced user, we also provide a non-containerized version of the pipeline in this repository. You will need to install all the tools and dependencies yourself.
+
 ### Using Docker image
 Please refer to the manual on Arima's DockerHub: https://hub.docker.com/repository/docker/arimaxiang/arima_sv
 
@@ -129,14 +131,33 @@ Arima-SV-Pipeline-v1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
 bash /FFPE/Arima-SV-Pipeline-v1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/test_data/test_output_docker/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> /FFPE/test_data/test_output_docker/log.txt
 ```
 
-## Pipeline Output
+## Pipeline Outputs
+***The Arima SV pipeline Bioinformatics User Guide walks through an example of how to run the Arima SV pipeline using the provided test data and provides additional information on the output files. The Arima SV pipeline generates multiple files. Main output files are:***
 
-The Arima SV pipeline generates multiple files. Main output files are:
-* $OUTPUT_DIR/\*_Arima_QC_deep.txt and $OUTPUT_DIR/\*_Arima_QC_shallow.txt - QC table containing multiple key metrics
-* $OUTPUT_DIR/hic_breakfinder/\*.breaks.bedpe - SV file in .bedpe format from hic_breakfinder
-* $OUTPUT_DIR/juicer/aligned/inter_30.hic - heatmap from Juicer pipeline for visualization using Juicebox
+### Arima Shallow Sequencing QC
 
-The Arima SV pipeline Bioinformatics User Guide walks through an example of how to run the Arima SV pipeline using the provided test data and provides additional information on the output files.
+#### [output_directory]/[output_prefix]_Arima_QC_shallow.txt
+Contents: This file includes QC metrics for assessing the shallow sequencing data for each CHiC library.
+- Break down of the number of read pairs
+- The target sequencing depth for deep sequencing
+- The percentage of long-range cis interactions that overlap the probe regions
+
+### Arima Deep Sequencing QC
+
+#### [output_directory]/[output_prefix]_Arima_QC_deep.txt
+Contents: This file includes QC metrics for assessing the deep sequencing data for each CHiC library.
+- Break down of the number of read pairs
+- The number of loops called
+- The percentage of long-range cis interactions that overlap the probe regions
+
+### SV file in .bedpe format from hic_breakfinder
+
+#### [output_directory]/hic_breakfinder/[output_prefix].breaks.bedpe
+
+### Arima HiC heatmap for visualization using Juicebox
+
+#### [output_directory]/juicer/aligned/inter_30.hic
+
 
 ## Arima Pipeline Version
 1.0
