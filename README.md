@@ -164,3 +164,17 @@ Contents: This file includes QC metrics for assessing the deep sequencing data f
 
 ## Support
 For Arima customer support, please contact techsupport@arimagenomics.com
+
+## Acknowledgments
+
+#### Authors of HiCUP: https://www.bioinformatics.babraham.ac.uk/projects/hicup/
+
+- Wingett S, et al. (2015) HiCUP: pipeline for mapping and processing Hi-C data F1000Research, 4:1310 (doi: 10.12688/f1000research.7334.1)
+
+#### Authors of HiC_breakfinder: https://github.com/dixonlab/hic_breakfinder
+
+- Dixon, J. R., Xu, J., Dileep, V., Zhan, Y., Song, F., Le, V. T., ... & Yue, F. (2018). Integrative detection and analysis of structural variation in cancer genomes. Nature genetics, 50(10), 1388-1398.
+
+#### Authors of Juicer: https://github.com/aidenlab/juicer
+
+- Neva C. Durand, Muhammad S. Shamim, Ido Machol, Suhas S. P. Rao, Miriam H. Huntley, Eric S. Lander, and Erez Lieberman Aiden. "Juicer provides a one-click system for analyzing loop-resolution Hi-C experiments." Cell Systems 3(1), 2016.
