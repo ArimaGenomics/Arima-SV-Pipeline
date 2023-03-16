@@ -86,17 +86,17 @@ singularity version  # '3.8.5'
 
 * Download Arima's Singularity container for SV pipeline
 ```
-wget ftp://ftp-arimagenomics.sdsc.edu/pub/singularity/Arima-SV-Pipeline-singularity-v1.sif
+wget ftp://ftp-arimagenomics.sdsc.edu/pub/singularity/Arima-SV-Pipeline-singularity-v1.1.sif
 ```
 
 * Run the pipeline with Singularity (Adjust this as necessary)
 ```
-singularity exec -B YOUR_HOST_OUTPUT_DIR:/FFPE/mydata/ Arima-SV-Pipeline-singularity-v1.sif bash /FFPE/Arima-SV-Pipeline-v1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/mydata/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> log.txt
+singularity exec -B YOUR_HOST_OUTPUT_DIR:/FFPE/mydata/ Arima-SV-Pipeline-singularity-v1.1.sif bash /FFPE/Arima-SV-Pipeline-v1.1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/mydata/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> log.txt
 ```
 
 
 ## Usage (Command line options)
-Arima-SV-Pipeline-v1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
+Arima-SV-Pipeline-v1.1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
               [-H run_hiccups] [-r reference_file] [-s chrom_sizes_file] [-c cut_site_file]
               [-a bowtie2] [-x bowtie2_index_basename] [-d digest] [-w hicup_dir]
               [-b hic_breakfinder_dir] [-j juicer_dir] [-I FASTQ_string] [-o out_dir]
@@ -128,7 +128,7 @@ Arima-SV-Pipeline-v1.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer]
 ### Example
 
 ```
-bash /FFPE/Arima-SV-Pipeline-v1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/test_data/test_output_docker/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> /FFPE/test_data/test_output_docker/log.txt
+bash /FFPE/Arima-SV-Pipeline-v1.1.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/test_data/test_output_docker/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> /FFPE/test_data/test_output_docker/log.txt
 ```
 
 ## Pipeline Outputs
@@ -160,7 +160,7 @@ Contents: This file includes QC metrics for assessing the deep sequencing data f
 
 
 ## Arima Pipeline Version
-1.0
+1.1
 
 ## Support
 For Arima customer support, please contact techsupport@arimagenomics.com
