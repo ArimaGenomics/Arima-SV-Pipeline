@@ -28,7 +28,7 @@
 # HiC_breakfinder: https://github.com/dixonlab/hic_breakfinder
 # Juicer: https://github.com/aidenlab/juicer
 
-version="v1.1"
+version="v1.2"
 cwd=$(dirname $0)
 
 ############################################################################
@@ -58,6 +58,8 @@ bowtie2="/root/anaconda3/bin/bowtie2"
 hicup_dir="/FFPE/HiCUP-0.8.0/"
 hic_breakfinder_dir="/usr/local/bin/"
 juicer_dir="/FFPE/juicer-1.6/"
+
+adapter_length=150
 
 ############################################################################
 ###                      Command Line Arguments                          ###
@@ -154,6 +156,7 @@ IFS=',' read -a FASTQ <<< "$FASTQ_string"
 ###                            Sanity checks!!!                          ###
 ############################################################################
 
+# Sanity checks
 #hash Rscript &> /dev/null
 command -v Rscript &> /dev/null
 if [[ $? -ne 0 ]]; then
@@ -176,6 +179,11 @@ if [[ $? -ne 0 ]]; then
 fi
 
 #hash bgzip &> /dev/null
+command -v bgzip &> /dev/null
+if [[ $? -ne 0 ]]; then
+    echo "Could not find bgzip. Please install or include it into the \"PATH\" variable!"
+    printHelpAndExit 1
+fi
 
 #hash bedtools &> /dev/null
 command -v bedtools &> /dev/null
@@ -310,8 +318,11 @@ out_hiccups=$out_dir"/juicer/aligned/hiccups/"
 
 [ -d "$out_dir" ] || mkdir -p $out_dir
 [ -d "$out_hicup" ] || mkdir -p $out_hicup
-[ -d "$out_hic_breakfinder" ] || mkdir -p $out_hic_breakfinder
 [ -d "$out_juicer/fastq/" ] || mkdir -p $out_juicer"/fastq/"
+
+if [[ "$run_hic_breakfinder" -eq 1 ]]; then
+  [ -d "$out_hic_breakfinder" ] || mkdir -p $out_hic_breakfinder
+fi
 
 hicup_config=$out_hicup"/hicup.conf"
 if [ "$run_hicup" -eq 1 ]; then
@@ -343,14 +354,18 @@ echo cut_site_file=$cut_site_file
 echo bowtie2=$bowtie2
 echo bowtie2_index_basename=$bowtie2_index_basename
 echo hicup_dir=$hicup_dir
-echo hic_breakfinder_dir=$hic_breakfinder_dir
+if [[ "$run_hic_breakfinder" -eq 1 ]]; then
+  echo hic_breakfinder_dir=$hic_breakfinder_dir
+fi
 echo juicer_dir=$juicer_dir
 echo digest=$digest
 echo hicup_config=$hicup_config
 echo FASTQ_string=$FASTQ_string
 echo out_dir=$out_dir
 echo out_hicup=$out_hicup
-echo out_hic_breakfinder=$out_hic_breakfinder
+if [[ "$run_hic_breakfinder" -eq 1 ]]; then
+  echo out_hic_breakfinder=$out_hic_breakfinder
+fi
 echo out_juicer=$out_juicer
 echo output_prefix=$output_prefix
 
@@ -380,15 +395,16 @@ fi
 
 hicup_output_bam=$out_hicup"/*R1_2*.hicup.bam"
 if [ `ls $hicup_output_bam 2> /dev/null | wc -l` -ne 1 ]; then
-    echo -e "ERROR: There should be exactly one *R1_2*.hicup.bam file in the HiCUP output!\n"
+    echo "ERROR: There should be exactly one *R1_2*.hicup.bam file in the HiCUP output! Have you removed your previous hicup output folder? Alternatively, you can skip running HiCUP module using -W 0, if you already have it."
     exit 1
 fi
 
 hicup_output_bam_string=`echo $hicup_output_bam`
 echo -e "Output BAM file from HiCUP: $hicup_output_bam_string\n"
 
+total_SVs="NA"
 if [ "$run_hic_breakfinder" -eq 0 ]; then
-    echo "Skipping hic_breakfinder and using previous hic_breakfinder output from $out_hic_breakfinder"
+    echo "Skipping hic_breakfinder ..."
 else
     timestamp=`date '+%Y/%m/%d %H:%M:%S'`
     echo "Running hic_breakfinder [$timestamp] ..."
@@ -396,19 +412,19 @@ else
     $hic_breakfinder_dir"/hic_breakfinder" --bam-file $hicup_output_bam_string --exp-file-inter $exp_file_inter --exp-file-intra $exp_file_intra --name $out_hic_breakfinder"/"$output_prefix --min-1kb &> $out_hic_breakfinder"/hic_breakfinder.log"
     timestamp=`date '+%Y/%m/%d %H:%M:%S'`
     echo -e "Finished running hic_breakfinder! [$timestamp]\n"
-fi
 
-SV_file_txt=$out_hic_breakfinder"/"$output_prefix".breaks.txt"
-SV_file_bedpe=$out_hic_breakfinder"/"$output_prefix".breaks.bedpe"
-if [ ! -f $SV_file_txt ]; then
-    echo -e "WARNING: Could not find the output SV file!\n"
-    total_SVs="NA"
-else
-    # Convert the .txt SV file into bedpe format
-    awk -v OFS="\t" 'BEGIN { print "#chr1","x1","x2","chr2","y1","y2","strand1","strand2","resolution","-logP" } { print $2,$3,$4,$6,$7,$8,$5,$9,$10,$1 }' $SV_file_txt > $SV_file_bedpe
-    echo -e "Output SV .txt file from hic_breakfinder: $SV_file_txt"
-    echo -e "Output SV .bedpe file from hic_breakfinder: $SV_file_bedpe\n"
-    total_SVs=`wc -l $SV_file_txt | awk '{print $1}'`
+    SV_file_txt=$out_hic_breakfinder"/"$output_prefix".breaks.txt"
+    SV_file_bedpe=$out_hic_breakfinder"/"$output_prefix".breaks.bedpe"
+
+    if [ ! -f $SV_file_txt ]; then
+        echo -e "WARNING: Could not find the output SV file!\n"
+    else
+        # Convert the .txt SV file into bedpe format
+        awk -v OFS="\t" 'BEGIN { print "#chr1","x1","x2","chr2","y1","y2","strand1","strand2","resolution","-logP" } { print $2,$3,$4,$6,$7,$8,$5,$9,$10,$1 }' $SV_file_txt > $SV_file_bedpe
+        echo -e "Output SV .txt file from hic_breakfinder: $SV_file_txt"
+        echo -e "Output SV .bedpe file from hic_breakfinder: $SV_file_bedpe\n"
+        total_SVs=`wc -l $SV_file_txt | awk '{print $1}'`
+    fi
 fi
 
 #hicup_stat_1=$out_hicup"/hicup_truncater_summary_*.txt"
@@ -418,7 +434,7 @@ fi
 hicup_summary_report=$out_hicup"/HiCUP_summary_report_*.txt"
 
 if [[ `ls $hicup_summary_report 2> /dev/null | wc -l` -ne 1 ]]; then
-    echo -e "ERROR: There should be exactly one HiCUP_summary_report_*.txt file in the HiCUP output!\n"
+    echo "ERROR: There should be exactly one HiCUP_summary_report_*.txt file in the HiCUP output!"
     exit 1
 fi
 
@@ -437,10 +453,42 @@ multi_mapped_SE=$(( $multi_mapped_R1 + $multi_mapped_R2 ))
 mapped_SE=$(( $uniq_mapped_SE + $multi_mapped_SE ))
 mapped_p=`echo "scale=4; 100 * $mapped_SE / $raw_pairs / 2" | bc | awk '{ printf("%.1f", $0) }'`
 
+truncated_R1=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f6 )
+truncated_R2=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f7 )
+truncated_SE=$(( $truncated_R1 + $truncated_R2 ))
+truncated_p=`echo "scale=4; 100 * $truncated_SE / $raw_pairs / 2" | bc | awk '{ printf("%.1f", $0) }'`
+
 total_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f18 )
 valid_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f20 )
 uniq_valid_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f31 )
 duplicated_pairs=$(( $valid_pairs - $uniq_valid_pairs ))
+
+# Calculate invalid pairs
+total_invalid_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f24 )
+same_circularised_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f25 )
+same_dangling_ends_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f26 )
+same_fragment_internal_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f27 )
+re_ligation_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f28 )
+contiguous_sequence_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f29 )
+wrong_size_pairs=$( head $hicup_summary_report | grep -v "Total_Reads_1" | head -1 | cut -f30 )
+
+# Calculate invalid pairs percentage (Out of ALL read pairs!)
+total_invalid_pairs_p=`echo "scale=4; 100 * $total_invalid_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
+if [ "$total_invalid_pairs" -eq 0 ]; then
+    same_circularised_pairs_p=0
+    same_dangling_ends_pairs_p=0
+    same_fragment_internal_pairs_p=0
+    re_ligation_pairs_p=0
+    contiguous_sequence_pairs_p=0
+    wrong_size_pairs_p=0
+else
+    same_circularised_pairs_p=`echo "scale=4; 100 * $same_circularised_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
+    same_dangling_ends_pairs_p=`echo "scale=4; 100 * $same_dangling_ends_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
+    same_fragment_internal_pairs_p=`echo "scale=4; 100 * $same_fragment_internal_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
+    re_ligation_pairs_p=`echo "scale=4; 100 * $re_ligation_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
+    contiguous_sequence_pairs_p=`echo "scale=4; 100 * $contiguous_sequence_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
+    wrong_size_pairs_p=`echo "scale=4; 100 * $wrong_size_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
+fi
 
 # Modified based on the metrics definition spreadsheet, but is inconsistent with HiCUP summary report output!
 uniq_valid_pairs_p=`echo "scale=4; 100 * $uniq_valid_pairs / $total_pairs" | bc | awk '{ printf("%.1f", $0) }'`
@@ -479,6 +527,11 @@ Lcis_trans_ratio=`echo "scale=2; $intra_ge_15kb_pairs / $inter_pairs" | bc | awk
 # target_raw_pairs=`echo "scale=4; 36500000 / ($intra_ge_15kb_pairs_p / 100) / ($uniq_valid_pairs_p / 100) / 0.8 / 0.7" | bc | awk '{ printf("%d", $0) }'`
 target_raw_pairs=`echo "scale=4; 3.65 / ($intra_ge_15kb_pairs_p / 100) / ($uniq_valid_pairs_p / 100) / 0.8 / 0.7 + 0.5" | bc | awk '{ x = sprintf("%d", $0); print x * 10000000 }'`
 
+# Estimate mean library length
+same_internal_bam=$out_hicup"/hicup_filter_ditag_rejects_"*"/"*"_same_internal.filter.bam"
+mean_lib_length=$( samtools view $same_internal_bam | awk -v adapter_length=$adapter_length '{ if($7=="=") {sum += (sqrt(($8-$4)^2) + adapter_length); ct++} } END { printf("%d", sum / ct) }' )
+# sort -n XXX | awk ' { a[i++] = $1; } END { mid = int((i+1) / 2); if(i % 2 == 1) print a[mid-1]; else print (a[mid-1] + a[mid]) / 2; }'
+
 echo -e "Key Metrics:"
 echo raw_R1=$raw_R1
 echo raw_R2=$raw_R2
@@ -491,6 +544,10 @@ echo multi_mapped_R2=$multi_mapped_R2
 echo multi_mapped_SE=$multi_mapped_SE
 echo mapped_SE=$mapped_SE
 echo mapped_p=$mapped_p
+echo truncated_R1=$truncated_R1
+echo truncated_R2=$truncated_R2
+echo truncated_SE=$truncated_SE
+echo truncated_p=$truncated_p
 
 echo total_pairs=$total_pairs
 echo valid_pairs=$valid_pairs
@@ -501,6 +558,21 @@ echo duplicated_pairs=$duplicated_pairs
 echo duplicated_pairs_p=$duplicated_pairs_p
 echo uniq_valid_pairs_p=$uniq_valid_pairs_p
 
+echo total_invalid_pairs=$total_invalid_pairs
+echo total_invalid_pairs_p=$total_invalid_pairs_p
+echo same_circularised_pairs=$same_circularised_pairs
+echo same_circularised_pairs_p=$same_circularised_pairs_p
+echo same_dangling_ends_pairs=$same_dangling_ends_pairs
+echo same_dangling_ends_pairs_p=$same_dangling_ends_pairs_p
+echo same_fragment_internal_pairs=$same_fragment_internal_pairs
+echo same_fragment_internal_pairs_p=$same_fragment_internal_pairs_p
+echo re_ligation_pairs=$re_ligation_pairs
+echo re_ligation_pairs_p=$re_ligation_pairs_p
+echo contiguous_sequence_pairs=$contiguous_sequence_pairs
+echo contiguous_sequence_pairs_p=$contiguous_sequence_pairs_p
+echo wrong_size_pairs=$wrong_size_pairs
+echo wrong_size_pairs_p=$wrong_size_pairs_p
+
 echo inter_pairs=$inter_pairs
 echo inter_pairs_p=$inter_pairs_p
 echo intra_pairs=$intra_pairs
@@ -510,6 +582,7 @@ echo intra_ge_15kb_pairs_p=$intra_ge_15kb_pairs_p
 echo Lcis_trans_ratio=$Lcis_trans_ratio
 echo total_SVs=$total_SVs
 echo target_raw_pairs=$target_raw_pairs
+echo mean_lib_length=$mean_lib_length
 echo
 
 if [ "$run_juicer" -eq 0 ]; then
@@ -562,8 +635,8 @@ fi
 ###               Arima Genomics Post-processing and QC                  ###
 ############################################################################
 # Write QC tables
-QC_result_deep=$out_dir"/"$output_prefix"_Arima_QC_deep.txt"
-QC_result_shallow=$out_dir"/"$output_prefix"_Arima_QC_shallow.txt"
+QC_result_deep=$out_dir"/"$output_prefix"_"$version"_Arima_QC_deep.txt"
+QC_result_shallow=$out_dir"/"$output_prefix"_"$version"_Arima_QC_shallow.txt"
 
 header_deep=("Sample_name" "Raw_pairs" "Mapped_SE_reads" "%_Mapped_SE_reads" "Duplicated_pairs" "%_Duplicated_pairs" "Unique_valid_pairs" "%_Unique_valid_pairs" "Library_complexity" "Intra_pairs" "%_Intra_pairs" "Intra_ge_15kb_pairs" "%_Intra_ge_15kb_pairs" "Inter_pairs" "%_Inter_pairs" "Lcis_trans_ratio" "SVs")
 IFS=$'\t'; echo "${header_deep[*]}" > $QC_result_deep
@@ -576,7 +649,6 @@ IFS=$'\t'; echo "${header_shallow[*]}" > $QC_result_shallow
 
 result_shallow=($output_prefix $raw_pairs $mapped_SE $mapped_p $duplicated_pairs $duplicated_pairs_p $uniq_valid_pairs $uniq_valid_pairs_p $lib_complexity $intra_pairs $intra_pairs_p $intra_ge_15kb_pairs $intra_ge_15kb_pairs_p $inter_pairs $inter_pairs_p $Lcis_trans_ratio $target_raw_pairs)
 IFS=$'\t'; echo "${result_shallow[*]}" >> $QC_result_shallow
-
 
 timestamp=`date '+%Y/%m/%d %H:%M:%S'`
 echo -e "Arima SV pipeline finished successfully! [$timestamp]\n"
