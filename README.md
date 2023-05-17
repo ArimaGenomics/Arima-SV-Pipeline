@@ -103,7 +103,7 @@ Arima-SV-Pipeline-v1.2.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer
               [-p output_prefix] [-e exp_file_intra] [-E exp_file_inter] [-t threads] [-v] [-h]
 
 * [-W run_hicup]: "1" (default) to run HiCUP pipeline, "0" to skip. If skipping,
-    HiCUP_summary_report_*.txt and *R1_2*.hicup.bam need to be in the HiCUP output folder.
+    HiCUP_summary_report_\*.txt and \*R1_2\*.hicup.bam need to be in the HiCUP output folder.
 * [-B run_hic_breakfinder]: "1" (default) to run hic_breakfinder, "0" to skip
 * [-J run_juicer]: "1" (default) to run Juicer, "0" to skip
 * [-H run_hiccups]: "1" to run HiCCUPS, "0" (default) to skip
@@ -143,28 +143,26 @@ ftp://ftp-arimagenomics.sdsc.edu/pub/ARIMA_TEST_DATASET/K562_HiC/K562_100M_R2.fa
 ***The Arima SV pipeline Bioinformatics User Guide walks through an example of how to run the Arima SV pipeline using the provided test data and provides additional information on the output files. The Arima SV pipeline generates multiple files. Main output files are:***
 
 ### Arima Shallow Sequencing QC
+**[output_directory]/[output_prefix]_[version_\#]_Arima_QC_shallow.txt**
 
-#### [output_directory]/[output_prefix]_[version_\#]_Arima_QC_shallow.txt
 Contents: This file includes QC metrics for assessing the shallow sequencing data for each CHiC library.
 - Break down of the number of read pairs
 - The target sequencing depth for deep sequencing
 - The percentage of long-range cis interactions that overlap the probe regions
 
 ### Arima Deep Sequencing QC
+**[output_directory]/[output_prefix]_[version_\#]_Arima_QC_deep.txt**
 
-#### [output_directory]/[output_prefix]_[version_\#]_Arima_QC_deep.txt
 Contents: This file includes QC metrics for assessing the deep sequencing data for each CHiC library.
 - Break down of the number of read pairs
 - The number of loops called
 - The percentage of long-range cis interactions that overlap the probe regions
 
 ### SV file in .bedpe format from hic_breakfinder
-
-#### [output_directory]/hic_breakfinder/[output_prefix].breaks.bedpe
+**[output_directory]/hic_breakfinder/[output_prefix].breaks.bedpe**
 
 ### HiC heatmap for visualization using Juicebox
-
-#### [output_directory]/juicer/aligned/[output_prefix]_inter_30.hic
+**[output_directory]/juicer/aligned/[output_prefix]_inter_30.hic**
 
 
 ## Current Pipeline Version
