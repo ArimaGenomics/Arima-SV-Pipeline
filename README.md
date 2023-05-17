@@ -91,7 +91,7 @@ wget ftp://ftp-arimagenomics.sdsc.edu/pub/singularity/Arima-SV-Pipeline-singular
 
 * Run the pipeline with Singularity (Adjust this as necessary)
 ```
-singularity exec -B YOUR_HOST_OUTPUT_DIR:/FFPE/mydata/ Arima-SV-Pipeline-singularity-v1.2.sif bash /FFPE/Arima-SV-Pipeline-v1.2.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/mydata/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> log.txt
+singularity exec -B YOUR_HOST_OUTPUT_DIR:/FFPE/mydata/ Arima-SV-Pipeline-singularity-v1.2.sif bash /FFPE/Arima-SV-Pipeline-v1.2.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/mydata/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> SV.log
 ```
 
 
@@ -128,7 +128,15 @@ Arima-SV-Pipeline-v1.2.sh [-W run_hicup] [-B run_hic_breakfinder] [-J run_juicer
 ### Example
 
 ```
-bash /FFPE/Arima-SV-Pipeline-v1.2.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/test_data/test_output_docker/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> /FFPE/test_data/test_output_docker/log.txt
+bash /FFPE/Arima-SV-Pipeline-v1.2.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/bowtie2 -b /usr/local/bin/ -w /FFPE/HiCUP-0.8.0/ -j /FFPE/juicer-1.6/ -r /FFPE/Arima_files/reference/hg38/hg38.fa -s /FFPE/Arima_files/Juicer/hg38.chrom.sizes -c /FFPE/Arima_files/Juicer/hg38_GATC_GANTC.txt -x /FFPE/Arima_files/reference/hg38/hg38 -d /FFPE/Arima_files/HiCUP/Digest_hg38_Arima.txt -I /FFPE/test_data/fastq/JB_3_5M_R1.fastq.gz,/FFPE/test_data/fastq/JB_3_5M_R2.fastq.gz -o /FFPE/test_data/test_output_docker/ -p JB_3_5M -e /FFPE/Arima_files/hic_breakfinder/intra_expect_100kb.hg38.txt -E /FFPE/Arima_files/hic_breakfinder/inter_expect_1Mb.hg38.txt -t 12 &> /FFPE/test_data/test_output_docker/SV.log
+```
+
+### Test datasets
+```
+ftp://ftp-arimagenomics.sdsc.edu/pub/Arima_FFPE/fastq/JB_3_5M_R1.fastq.gz
+ftp://ftp-arimagenomics.sdsc.edu/pub/Arima_FFPE/fastq/JB_3_5M_R2.fastq.gz
+ftp://ftp-arimagenomics.sdsc.edu/pub/ARIMA_TEST_DATASET/K562_HiC/K562_100M_R1.fastq.gz
+ftp://ftp-arimagenomics.sdsc.edu/pub/ARIMA_TEST_DATASET/K562_HiC/K562_100M_R2.fastq.gz
 ```
 
 ## Pipeline Outputs
@@ -136,7 +144,7 @@ bash /FFPE/Arima-SV-Pipeline-v1.2.sh -W 1 -B 1 -J 1 -H 0 -a /root/anaconda3/bin/
 
 ### Arima Shallow Sequencing QC
 
-#### [output_directory]/[output_prefix]_Arima_QC_shallow.txt
+#### [output_directory]/[output_prefix]_[version_\#]_Arima_QC_shallow.txt
 Contents: This file includes QC metrics for assessing the shallow sequencing data for each CHiC library.
 - Break down of the number of read pairs
 - The target sequencing depth for deep sequencing
@@ -144,7 +152,7 @@ Contents: This file includes QC metrics for assessing the shallow sequencing dat
 
 ### Arima Deep Sequencing QC
 
-#### [output_directory]/[output_prefix]_Arima_QC_deep.txt
+#### [output_directory]/[output_prefix]_[version_\#]_Arima_QC_deep.txt
 Contents: This file includes QC metrics for assessing the deep sequencing data for each CHiC library.
 - Break down of the number of read pairs
 - The number of loops called
@@ -154,13 +162,29 @@ Contents: This file includes QC metrics for assessing the deep sequencing data f
 
 #### [output_directory]/hic_breakfinder/[output_prefix].breaks.bedpe
 
-### Arima HiC heatmap for visualization using Juicebox
+### HiC heatmap for visualization using Juicebox
 
-#### [output_directory]/juicer/aligned/inter_30.hic
+#### [output_directory]/juicer/aligned/[output_prefix]_inter_30.hic
 
 
-## Arima Pipeline Version
+## Current Pipeline Version
 1.2
+
+## Release Note
+### v1.2
+- The name of the output QC metrics files now contains the pipeline version #
+- You can now skip any modules in the pipeline and still get the final QC table
+- Other minor fixes
+
+### v1.3
+- HiC heatmap is generated from BAM file directory, instead of running Juicer pipeline
+- Added detailed breakdown list of invalid read pairs categories to the final QC table
+- Added insert size calculation to the final QC table
+- Added an option to remove intermediate files to reduce space
+- Added an option for sub-sampling input FASTQ files (default: 100M)
+- Renamed inter_30.hic files to include the sample name
+- The chromosomes in the HiC heatmap are now sorted by name instead of sorted by length
+- Fixed HiC heatmap with Desktop version of Juicebox compatibility issue
 
 ## Support
 For Arima customer support, please contact techsupport@arimagenomics.com
