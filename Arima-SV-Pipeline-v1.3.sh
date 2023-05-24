@@ -419,7 +419,7 @@ if [[ "$run_hiccups" -eq 1 ]]; then
 fi
 echo output_prefix=$output_prefix
 
-if [[ "$run_hic_breakfinder" -eq 1 || ( -f $exp_file_intra && -f $exp_file_inter ) ]]; then
+if [[ "$run_hic_breakfinder" -eq 1 || ( -f "$exp_file_intra" && -f "$exp_file_inter" ) ]]; then
     echo exp_file_intra=$exp_file_intra
     echo exp_file_inter=$exp_file_inter
 fi
@@ -480,7 +480,7 @@ else
     SV_file_txt=$out_hic_breakfinder"/"$output_prefix".breaks.txt"
     SV_file_bedpe=$out_hic_breakfinder"/"$output_prefix".breaks.bedpe"
 
-    if [ ! -f $SV_file_txt ]; then
+    if [ ! -f "$SV_file_txt" ]; then
         echo -e "WARNING: Could not find the output SV file!\n"
     else
         # Convert the .txt SV file into bedpe format
@@ -593,8 +593,12 @@ target_raw_pairs=`echo "scale=4; 3.65 / ($intra_ge_15kb_pairs_p / 100) / ($uniq_
 
 # Estimate mean library length
 same_internal_bam=$out_hicup"/hicup_filter_ditag_rejects_"*"/"*"_same_internal.filter.bam"
-mean_lib_length=$( samtools view $same_internal_bam | awk -v adapter_length=$adapter_length '{ if($7=="=") {sum += (sqrt(($8-$4)^2) + adapter_length); ct++} } END { printf("%d", sum / ct) }' )
-# sort -n XXX | awk ' { a[i++] = $1; } END { mid = int((i+1) / 2); if(i % 2 == 1) print a[mid-1]; else print (a[mid-1] + a[mid]) / 2; }'
+if [ -f "$same_internal_bam" ]; then
+    mean_lib_length=$( samtools view $same_internal_bam | awk -v adapter_length=$adapter_length '{ if($7=="=") {sum += (sqrt(($8-$4)^2) + adapter_length); ct++} } END { printf("%d", sum / ct) }' )
+    # sort -n XXX | awk ' { a[i++] = $1; } END { mid = int((i+1) / 2); if(i % 2 == 1) print a[mid-1]; else print (a[mid-1] + a[mid]) / 2; }'
+else
+    mean_lib_length="NA"
+fi
 
 echo -e "Key Metrics:"
 echo raw_R1=$raw_R1
@@ -665,13 +669,13 @@ elif [[ "$run_juicer" -eq 1 ]]; then
     # Added in v1.3
     echo "Generating HiC heatmap for visualization using Juicebox [$timestamp] ..."
 
-    echo "$cwd/utils/bam2pairs.pl -c $chrom_sizes_file $hicup_output_bam_string $out_juicer/merged_nodups &> /dev/null"
+    echo "perl $cwd/utils/bam2pairs.pl -c $chrom_sizes_file $hicup_output_bam_string $out_juicer/merged_nodups &> /dev/null"
     perl $cwd"/utils/bam2pairs.pl" -c $chrom_sizes_file $hicup_output_bam_string $out_juicer"/merged_nodups" &> /dev/null
 
     echo "java -Djava.awt.headless=true -jar $cwd/utils/juicer_tools_1.19.02.jar pre -f $cut_site_file -q 30 $out_juicer/merged_nodups.bsorted.pairs.gz $hic_file_30 $chrom_sizes_file &> $out_juicer/juicer_pre.log"
     java -Djava.awt.headless=true -jar $cwd"/utils/juicer_tools_1.19.02.jar" pre -f $cut_site_file -q 30 $out_juicer"/merged_nodups.bsorted.pairs.gz" $hic_file_30 $chrom_sizes_file &> $out_juicer"/juicer_pre.log"
 
-    if [ -f $hic_file_30 ]; then
+    if [ -f "$hic_file_30" ]; then
         echo "The filtered .hic file from Juicer for visualization using Juicebox is located at: $hic_file_30"
     else
         echo -e "WARNING: Could not find $hic_file_30!\n"
@@ -684,7 +688,7 @@ fi
 
 loop_file=$out_hiccups"/merged_loops.bedpe"
 loop_file_new=$out_hiccups"/"$output_prefix"_merged_loops.bedpe"
-if [[ -f $hic_file_30 && "$run_hiccups" -eq 1 ]]; then
+if [[ -f "$hic_file_30" && "$run_hiccups" -eq 1 ]]; then
     [ -d "$out_hiccups" ] || mkdir -p $out_hiccups
 
     timestamp=`date '+%Y/%m/%d %H:%M:%S'`
@@ -694,7 +698,7 @@ if [[ -f $hic_file_30 && "$run_hiccups" -eq 1 ]]; then
     timestamp=`date '+%Y/%m/%d %H:%M:%S'`
     echo -e "Finished running HiCCUPS! [$timestamp]\n"
 
-    if [ -f $loop_file ]; then
+    if [ -f "$loop_file" ]; then
         mv $loop_file $loop_file_new
     else
         echo -e "WARNING: Could not find the output loop file!\n"
@@ -722,12 +726,12 @@ IFS=$'\t'; echo "${result_shallow[*]}" >> $QC_result_shallow
 
 echo -e "Please download the QC result from: $QC_result_deep and $QC_result_shallow and then copy the contents to the corresponding tables in the QC worksheet.\n"
 
-if [ -f $SV_file_txt ]; then
+if [ -f "$SV_file_txt" ]; then
     echo "The SV .txt file from hic_breakfinder is located at: $SV_file_txt"
     echo "The SV .bedpe file from hic_breakfinder is located at: $SV_file_bedpe"
 fi
 
-if [[ -f $loop_file_new ]]; then
+if [[ -f "$loop_file_new" ]]; then
     echo "The loop file from HiCCUPS is located at: $loop_file_new"
 fi
 

@@ -178,16 +178,16 @@ Contents: This file includes QC metrics for assessing the deep sequencing data f
 - Other minor fixes
 
 ### v1.3
-- HiC heatmap is generated from BAM file directory, instead of running Juicer pipeline
+- HiC heatmap is generated from BAM file directly, instead of running the entire Juicer pipeline
 - Added detailed breakdown list of invalid read pairs categories to the final QC table
 - Added insert size calculation to the final QC table
 - Added an option to remove intermediate files to reduce space
 - Added an option for sub-sampling input FASTQ files (default: no subsampling)
 - Renamed inter_30.hic and merged_loops.bedpe files to include the sample name
 - The chromosomes in the HiC heatmap are now sorted by name instead of sorted by length
-- Fixed HiC heatmap with Desktop version of Juicebox compatibility issue
+- Fixed HiC heatmap with desktop version of Juicebox compatibility issue
 - Removed library complexity calculation from the pipeline
-- A log file will be automatically generated in the output folder
+- A log file (Arima_SV_v1.3_\*.log) will be automatically generated in the output folder
 
 ## Support
 For Arima customer support, please contact techsupport@arimagenomics.com
