@@ -669,8 +669,8 @@ elif [[ "$run_juicer" -eq 1 ]]; then
     # Added in v1.3
     echo "Generating HiC heatmap for visualization using Juicebox [$timestamp] ..."
 
-    echo "perl $cwd/utils/bam2pairs.pl -c $chrom_sizes_file $hicup_output_bam_string $out_juicer/merged_nodups &> /dev/null"
-    perl $cwd"/utils/bam2pairs.pl" -c $chrom_sizes_file $hicup_output_bam_string $out_juicer"/merged_nodups" &> /dev/null
+    echo "perl $cwd/utils/bam2pairs.pl -c $chrom_sizes_file $hicup_output_bam_string $out_juicer/merged_nodups &> $out_juicer/bam2pairs.log"
+    perl $cwd"/utils/bam2pairs.pl" -c $chrom_sizes_file $hicup_output_bam_string $out_juicer"/merged_nodups" &> $out_juicer"/bam2pairs.log"
 
     echo "java -Djava.awt.headless=true -jar $cwd/utils/juicer_tools_1.19.02.jar pre -f $cut_site_file -q 30 $out_juicer/merged_nodups.bsorted.pairs.gz $hic_file_30 $chrom_sizes_file &> $out_juicer/juicer_pre.log"
     java -Djava.awt.headless=true -jar $cwd"/utils/juicer_tools_1.19.02.jar" pre -f $cut_site_file -q 30 $out_juicer"/merged_nodups.bsorted.pairs.gz" $hic_file_30 $chrom_sizes_file &> $out_juicer"/juicer_pre.log"
