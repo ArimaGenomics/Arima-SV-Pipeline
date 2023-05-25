@@ -593,7 +593,7 @@ target_raw_pairs=`echo "scale=4; 3.65 / ($intra_ge_15kb_pairs_p / 100) / ($uniq_
 
 # Estimate mean library length
 same_internal_bam=$out_hicup"/hicup_filter_ditag_rejects_"*"/"*"_same_internal.filter.bam"
-if [ -f "$same_internal_bam" ]; then
+if [ -f $same_internal_bam ]; then
     mean_lib_length=$( samtools view $same_internal_bam | awk -v adapter_length=$adapter_length '{ if($7=="=") {sum += (sqrt(($8-$4)^2) + adapter_length); ct++} } END { printf("%d", sum / ct) }' )
     # sort -n XXX | awk ' { a[i++] = $1; } END { mid = int((i+1) / 2); if(i % 2 == 1) print a[mid-1]; else print (a[mid-1] + a[mid]) / 2; }'
 else
